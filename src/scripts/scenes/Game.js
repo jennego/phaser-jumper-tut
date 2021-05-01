@@ -96,11 +96,35 @@ export default class Game extends Phaser.Scene {
     if (this.cursors.left.isDown && !touchingDown) {
       this.player.setVelocityX(-200)
     } else if (this.cursors.right.isDown && !touchingDown) {
-      this.player.setVelocityX(200)
+      this.player.setVelocityX(-200)
     } else {
       this.player.setVelocityX(0)
     }
+
+    var pointer = this.input.activePointer
+    // if (pointer.isDown) {
+    //   var touchX = pointer.x
+    //   var touchY = pointer.y
+    //   console.log(touchX, touchY)
+    //   this.physics.moveTo(this.player, pointer, touchX)
+    // }
+
+    if (pointer.x < this.player.x) {
+      // mouse pointer is to the left
+      if (pointer.isDown) {
+        this.player.setVelocityX(-200)
+        console.log('click to the left')
+      }
+    } else if (pointer.x > this.player.x) {
+      if (pointer.isDown) {
+        this.player.setVelocityX(200)
+        console.log('click to the right')
+      }
+
+      // mouse pointer is to the right  }
+    }
   }
+
   horizontalWrap(sprite) {
     const halfWidth = sprite.displayWidth * 0.5
     const gameWidth = this.scale.width
