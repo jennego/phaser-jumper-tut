@@ -2,6 +2,7 @@ import 'phaser'
 import MainScene from './scenes/mainScene'
 import PreloadScene from './scenes/preloadScene'
 import Game from './scenes/Game'
+import GameOver from './scenes/GameOver'
 
 const DEFAULT_WIDTH = 480
 const DEFAULT_HEIGHT = 640
@@ -16,7 +17,7 @@ const config = {
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT
   },
-  scene: [Game],
+  scene: [Game, GameOver],
   physics: {
     default: 'arcade',
     arcade: {

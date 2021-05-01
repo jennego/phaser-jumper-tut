@@ -14,8 +14,16 @@ export default class Game extends Phaser.Scene {
   /** @type {Phaser.Physics.Arcade.Group} */
   carrots
 
+  carrotsCollected
+
+  carrotsCollectedText
+
   constructor() {
     super('game')
+  }
+
+  init() {
+    this.carrotsCollected = 0
   }
   preload() {
     this.load.image('background', '../../assets/img/bg_layer1.png')
@@ -54,7 +62,11 @@ export default class Game extends Phaser.Scene {
 
     this.carrots = this.physics.add.group({ classType: Carrot })
     this.carrots.get(240, 320, 'carrot')
+    this.physics.add.overlap(this.player, this.carrots, this.handleCollectCarrot, undefined, this)
     this.physics.add.collider(this.platforms, this.carrots)
+
+    const style = { color: '#000', fontSize: 24 }
+    this.carrotsCollectedText = this.add.text(240, 10, 'Carrots: 0', style).setScrollFactor(0).setOrigin(0.5, 0)
   }
   update(t, dt) {
     const touchingDown = this.player.body.touching.down
@@ -73,6 +85,11 @@ export default class Game extends Phaser.Scene {
         platform.y = scrollY - Phaser.Math.Between(50, 100)
         platform.body.updateFromGameObject()
         this.addCarrotAbove(platform)
+      }
+
+      const bottomPlatform = this.findBottomMostPlatform()
+      if (this.player.y > bottomPlatform.y + 200) {
+        this.scene.start('game-over')
       }
     })
 
@@ -98,9 +115,40 @@ export default class Game extends Phaser.Scene {
     const y = sprite.y - sprite.displayHeight
     /** @type {Phaser.Physics.Arcade.Sprite} */
     const carrot = this.carrots.get(sprite.x, y, 'carrot')
+
+    carrot.setActive(true)
+    carrot.setVisible(true)
     this.add.existing(carrot)
     // update the physics body size
     carrot.body.setSize(carrot.width, carrot.height)
+
+    this.physics.world.enable(carrot)
     return carrot
+  }
+
+  handleCollectCarrot(player, carrot) {
+    console.log('collect carot')
+    this.carrots.killAndHide(carrot)
+    this.physics.world.disableBody(carrot.body)
+    this.carrotsCollected++
+    const value = `Carrots: ${this.carrotsCollected}`
+    this.carrotsCollectedText.text = value
+  }
+
+  findBottomMostPlatform() {
+    const platforms = this.platforms.getChildren()
+    let bottomPlatform = platforms[0]
+
+    for (let i = 1; i < platforms.length; ++i) {
+      const platform = platforms[i]
+
+      if (platform.y < bottomPlatform.y) {
+        continue
+      }
+
+      bottomPlatform = platform
+    }
+
+    return bottomPlatform
   }
 }
